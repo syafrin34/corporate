@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .           # Folder tempat Dockerfile berada
+      dockerfile: Dockerfile
+    container_name: corporate
+    ports:
+      - "8080:8080"        # Mapping port lokal ke dalam container
+    depends_on:
+      - db                 # Jalankan DB dulu sebelum app
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: corporate
+    networks:
+      - app-corporate
+
+  db:
+    image: postgres:15
+    container_name: postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: corporate
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-corporate
+
+volumes:
+  db-data:
+
+networks:
+  app-corporate:

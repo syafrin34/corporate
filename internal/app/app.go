@@ -35,7 +35,8 @@ func RunServer() {
 	e := echo.New()
 	e.Use(middleware.CORS())
 	customValidator := validator.NewValidator()
-	en.New()
+	en.RegisterDefaultTranslations(customValidator.Validator, customValidator.Translator)
+	e.Validator = customValidator
 	e.GET("/api/check", func(c echo.Context) error {
 		return c.String(200, "OK")
 	})
