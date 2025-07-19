@@ -21,8 +21,14 @@ type PsqlDB struct {
 }
 
 type Config struct {
-	App  App
-	Psql PsqlDB
+	App      App
+	Psql     PsqlDB
+	Supabase Supabase
+}
+type Supabase struct {
+	StorageUrl    string `json:"storage_url"`
+	StorageKey    string `json:"storage_key"`
+	StorageBucket string `json:"storage_bucket"`
 }
 
 func NewConfig() *Config {
@@ -42,6 +48,11 @@ func NewConfig() *Config {
 			DBName:    viper.GetString("DATABASE_NAME"),
 			DBMaxOpen: viper.GetInt("DATABASE_MAX_OPEN_CONNECTION"),
 			DBMaxIdle: viper.GetInt("DATABASE_MAX_IDLE_CONNECTION"),
+		},
+		Supabase: Supabase{
+			StorageUrl:    viper.GetString("SUPABASE_STORAGE_URL"),
+			StorageKey:    viper.GetString("SUPABASE_STORAGE_KEY"),
+			StorageBucket: viper.GetString("SUPABASE_STORAGE_BUCKET"),
 		},
 	}
 }
