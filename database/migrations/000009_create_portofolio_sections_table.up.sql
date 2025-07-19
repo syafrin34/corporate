@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS portofolio_sections (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(150) ,
+    tagline text,
+    thumbnail text NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
+
+);
