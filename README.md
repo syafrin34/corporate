@@ -10,3 +10,4 @@ migrate -database "postgres://postgres:password@localhost:5432/corporate?sslmode
 // go get github.com/go-playground/validator/v10
 // go get github.com/go-playground/universal-translator
 // go get github.com/supabase-community/storage-go
+// go get github.com/joho/godotenv

@@ -7,34 +7,41 @@ services:
       dockerfile: Dockerfile
     container_name: corporate
     ports:
-      - "8080:8080"        # Mapping port lokal ke dalam container
-    depends_on:
-      - db                 # Jalankan DB dulu sebelum app
+      - "8080:8080"        # Mapping port lokal ke dalam container      
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: password
-      DB_NAME: corporate
+      DATABASE_HOST: postgresql #nama container db psotgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: corporate
+      DATABASE_MAX_OPEN_CONNECTION: 10
+      DATABASE_MAX_IDLE_CONNECTION: 10
     networks:
       - app-corporate
 
-  db:
-    image: postgres:15
-    container_name: postgresql
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: corporate
-    ports:
-      - "5432:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    networks:
-      - app-corporate
+  # db:
+  #   image: postgres:15
+  #   container_name: postgresql
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: corporate
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - db-data:/var/lib/postgresql/data
+  #   networks:
+  #     - app-corporate
 
-volumes:
-  db-data:
+# volumes:
+#   db-data:
 
 networks:
   app-corporate:
+    external: true
+
+  # buat network untuk container dan koneksikan ke container postgresql
+  # 1. docker network create app-corporate  
+  # 2.docker network connect app-corporate postgresql
+  # kemudianbuild app 3. docker-compose up --build
+

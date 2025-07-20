@@ -1,6 +1,11 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+
+	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
+)
 
 type App struct {
 	AppPort string `json:"app_port"`
@@ -32,6 +37,9 @@ type Supabase struct {
 }
 
 func NewConfig() *Config {
+	_ = godotenv.Load()
+	viper.AutomaticEnv()
+	fmt.Println("DB HOST:", viper.GetString("DATABASE_HOST"))
 	return &Config{
 		App: App{
 			AppPort: viper.GetString("APP_PORT"),

@@ -1,5 +1,5 @@
 # Build
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 #Install git dan dep lain kalau perlu
 RUN apk add --no-cache git
