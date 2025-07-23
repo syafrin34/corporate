@@ -20,27 +20,27 @@ type heroSectionService struct {
 
 // CreateHeroSection implements HeroSectionServiceInterface.
 func (h *heroSectionService) CreateHeroSection(ctx context.Context, req entity.HeroSectionEntity) error {
-	panic("unimplemented")
+	return h.heroSectionRepo.CreateHeroSection(ctx, req)
 }
 
 // DeleteByIDHeroSection implements HeroSectionServiceInterface.
 func (h *heroSectionService) DeleteByIDHeroSection(ctx context.Context, id int64) error {
-	panic("unimplemented")
+	return h.heroSectionRepo.DeleteByIDHeroSection(ctx, id)
 }
 
 // EditByIDHeroSection implements HeroSectionServiceInterface.
 func (h *heroSectionService) EditByIDHeroSection(ctx context.Context, req entity.HeroSectionEntity) error {
-	panic("unimplemented")
+	return h.heroSectionRepo.EditByIDHeroSection(ctx, req)
 }
 
 // FetchAllHeroSection implements HeroSectionServiceInterface.
 func (h *heroSectionService) FetchAllHeroSection(ctx context.Context) ([]entity.HeroSectionEntity, error) {
-	panic("unimplemented")
+	return h.heroSectionRepo.FetchAllHeroSection(ctx)
 }
 
 // FetchByIDHeroSection implements HeroSectionServiceInterface.
 func (h *heroSectionService) FetchByIDHeroSection(ctx context.Context, id int64) (*entity.HeroSectionEntity, error) {
-	panic("unimplemented")
+	return h.heroSectionRepo.FetchByIDHeroSection(ctx, id)
 }
 
 func NewHeroSectionService(heroSectionRepo repository.HeroSectionInterface) HeroSectionServiceInterface {
