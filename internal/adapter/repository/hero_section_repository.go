@@ -26,8 +26,8 @@ func (h *heroSection) CreateHeroSection(ctx context.Context, req entity.HeroSect
 	modelHeroSection := model.HeroSection{
 		Heading:    req.Heading,
 		SubHeading: req.SubHeading,
-		PathVideo:  &req.SubHeading,
-		Banner:     req.Banner,
+		PathVideo:  &req.PathVideo,
+		PathBanner: req.Banner,
 	}
 	if err = h.DB.Create(&modelHeroSection).Error; err != nil {
 		log.Errorf("[REPOSITORY] CreateHeroSEction - 1: %v", err)
@@ -64,7 +64,7 @@ func (h *heroSection) EditByIDHeroSection(ctx context.Context, req entity.HeroSe
 	modelHeroSection.Heading = req.Heading
 	modelHeroSection.SubHeading = req.SubHeading
 	modelHeroSection.PathVideo = &req.PathVideo
-	modelHeroSection.Banner = req.Banner
+	modelHeroSection.PathBanner = req.Banner
 	err = h.DB.Save(&modelHeroSection).Error
 	if err != nil {
 		log.Errorf("[REPOSITORY] EditIDHeroSection - 2: %v", err)
@@ -76,7 +76,7 @@ func (h *heroSection) EditByIDHeroSection(ctx context.Context, req entity.HeroSe
 // FetchAllHeroSection implements HeroSectionInterface.
 func (h *heroSection) FetchAllHeroSection(ctx context.Context) ([]entity.HeroSectionEntity, error) {
 	modelHeroSection := []model.HeroSection{}
-	err = h.DB.Select("id", "heading", "sub_heading", "path_video", "banner").Find(&modelHeroSection).Order("created_at DESC").Error
+	err = h.DB.Select("id", "heading", "sub_heading", "path_video", "path_banner").Find(&modelHeroSection).Order("created_at DESC").Error
 	if err != nil {
 		log.Errorf("[REPOSITORY] FetchAllHeroSection - 1: %v", err)
 		return nil, err
@@ -89,7 +89,7 @@ func (h *heroSection) FetchAllHeroSection(ctx context.Context) ([]entity.HeroSec
 			Heading:    v.Heading,
 			SubHeading: v.SubHeading,
 			PathVideo:  *v.PathVideo,
-			Banner:     v.Banner,
+			Banner:     v.PathBanner,
 		})
 	}
 	return heroSectionsEntities, nil
@@ -109,7 +109,7 @@ func (h *heroSection) FetchByIDHeroSection(ctx context.Context, id int64) (*enti
 		Heading:    modelHeroSection.Heading,
 		SubHeading: modelHeroSection.SubHeading,
 		PathVideo:  *modelHeroSection.PathVideo,
-		Banner:     modelHeroSection.Banner,
+		Banner:     modelHeroSection.PathBanner,
 	}, nil
 }
 

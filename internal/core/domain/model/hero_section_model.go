@@ -11,7 +11,7 @@ type HeroSection struct {
 	Heading    string
 	SubHeading string
 	PathVideo  *string
-	Banner     string
+	PathBanner string
 	CreatedAt  time.Time
 	UpdatedAt  *time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`

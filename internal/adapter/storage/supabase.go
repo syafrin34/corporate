@@ -23,7 +23,7 @@ func NewSupabase(cfg *config.Config) SupabaseInterface {
 }
 
 func (s *supabaseStruct) UploadFile(path string, file io.Reader) (string, error) {
-	client := storage_go.NewClient(s.cfg.Supabase.StorageUrl, s.cfg.Supabase.StorageKey, map[string]string{"Content-Type": "image/jpeg"})
+	client := storage_go.NewClient(s.cfg.Supabase.StorageUrl, s.cfg.Supabase.StorageKey, map[string]string{"Content-Type": "image/*"})
 	_, err := client.UploadFile(s.cfg.Supabase.StorageBucket, path, file)
 
 	if err != nil {

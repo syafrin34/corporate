@@ -278,7 +278,7 @@ func NewHeroSectionHandler(c *echo.Echo, cfg *config.Config, heroSectionService 
 		heroSectionService: heroSectionService,
 	}
 	mid := middleware.NewMiddleware(cfg)
-	heroApp := c.Group("hero-sections")
+	heroApp := c.Group("/hero-sections")
 	adminApp := heroApp.Group("/admin", mid.CheckToken())
 	adminApp.GET("", heroHandler.FetchAllHeroSection)
 	adminApp.POST("", heroHandler.CreateHeroSection)

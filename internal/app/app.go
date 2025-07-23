@@ -5,6 +5,7 @@ import (
 	"corporate/config"
 	"corporate/internal/adapter/handler"
 	"corporate/internal/adapter/repository"
+	"corporate/internal/adapter/storage"
 	"corporate/internal/core/service"
 	"corporate/utils/auth"
 	"corporate/utils/validator"
@@ -30,7 +31,15 @@ func RunServer() {
 
 	jwt := auth.NewJwt(cfg)
 	userRepo := repository.NewUserRepository(db.DB)
+	heroSectionRepo := repository.NewHeroSectionRepository(db.DB)
+	clientSectionRepo := repository.NewClientSectionRepository(db.DB)
+	aboutCompanyRepo := repository.NewAboutCompanyRepository(db.DB)
+
 	userService := service.NewUserService(userRepo, cfg, jwt)
+	heroSectionService := service.NewHeroSectionService(heroSectionRepo)
+	clientSectionService := service.NewClientSectionService(clientSectionRepo)
+	aboutCompanyService := service.NewAboutCompanyService(aboutCompanyRepo)
+	storageAdapter := storage.NewSupabase(cfg)
 
 	e := echo.New()
 	e.Use(middleware.CORS())
@@ -41,6 +50,10 @@ func RunServer() {
 		return c.String(200, "OK")
 	})
 	handler.NewUserHandler(e, userService)
+	handler.NewUploadImage(e, storageAdapter, cfg)
+	handler.NewHeroSectionHandler(e, cfg, heroSectionService)
+	handler.NewClientSectionHandler(e, clientSectionService, cfg)
+	handler.NewAboutCompanyHandler(e, aboutCompanyService, cfg)
 
 	// starting server
 

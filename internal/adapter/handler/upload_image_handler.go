@@ -71,8 +71,8 @@ func (u *uploadImage) UploadImage(c echo.Context) error {
 		return c.JSON(400, respError)
 	}
 
-	respError.Meta.Message = "Success Upload Image"
-	respError.Meta.Status = true
+	resp.Meta.Message = "Success Upload Image"
+	resp.Meta.Status = true
 	resp.Data = map[string]string{
 		"url": url,
 	}
