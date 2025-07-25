@@ -34,6 +34,7 @@ func RunServer() {
 	heroSectionRepo := repository.NewHeroSectionRepository(db.DB)
 	clientSectionRepo := repository.NewClientSectionRepository(db.DB)
 	aboutCompanyRepo := repository.NewAboutCompanyRepository(db.DB)
+	aboutCompanyKeynoteRepo := repository.NewAboutCompanyKeynoteRepository(db.DB)
 	faqRepo := repository.NewFaqSectionRepository(db.DB)
 	ourTeamRepo := repository.NewOurTeamRepository(db.DB)
 
@@ -41,6 +42,7 @@ func RunServer() {
 	heroSectionService := service.NewHeroSectionService(heroSectionRepo)
 	clientSectionService := service.NewClientSectionService(clientSectionRepo)
 	aboutCompanyService := service.NewAboutCompanyService(aboutCompanyRepo)
+	aboutCompanyKeynoteService := service.NewAboutCompanyKeynoteService(aboutCompanyKeynoteRepo, aboutCompanyRepo)
 	faqService := service.NewFaqSectionService(faqRepo)
 	ourTeamService := service.NewOurTeamService(ourTeamRepo)
 	storageAdapter := storage.NewSupabase(cfg)
@@ -58,6 +60,7 @@ func RunServer() {
 	handler.NewHeroSectionHandler(e, cfg, heroSectionService)
 	handler.NewClientSectionHandler(e, clientSectionService, cfg)
 	handler.NewAboutCompanyHandler(e, aboutCompanyService, cfg)
+	handler.NewAboutCompanyKeynoteHandler(e, aboutCompanyKeynoteService, cfg)
 	handler.NewFaqSectionHandler(e, faqService, cfg)
 	handler.NewOurTeamHandler(e, ourTeamService, cfg)
 
