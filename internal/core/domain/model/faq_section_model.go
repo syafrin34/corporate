@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type FAQSection struct {
+type FaqSection struct {
 	ID          int64 `gorm:"id,primaryKey"`
 	Title       string
 	Description string

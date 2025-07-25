@@ -14,21 +14,21 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-type AboutCompanyHandlerInterface interface {
-	CreateAboutCompany(c echo.Context) error
-	FetchAllAboutCompany(c echo.Context) error
-	FetchByIDAboutCompany(c echo.Context) error
-	EditByIDAboutCompany(c echo.Context) error
-	DeleteByIDAboutCompany(c echo.Context) error
+type FaqSectionHandlerInterface interface {
+	CreateFaqSection(c echo.Context) error
+	FetchAllFaqSection(c echo.Context) error
+	FetchByIDFaqSection(c echo.Context) error
+	EditByIDFaqSection(c echo.Context) error
+	DeleteByIDFaqSection(c echo.Context) error
 }
-type aboutCompanyHandler struct {
-	AboutCompanyService service.AboutCompanyServiceInterface
+type faqSectionHandler struct {
+	FaqSectionService service.FaqSectionServiceInterface
 }
 
-// CreateAboutCompany implements CLientSectionHandlerInterface.
-func (cs *aboutCompanyHandler) CreateAboutCompany(c echo.Context) error {
+// CreateFaqSection implements CLientSectionHandlerInterface.
+func (cs *faqSectionHandler) CreateFaqSection(c echo.Context) error {
 	var (
-		req       = request.AboutCompanyRequest{}
+		req       = request.FaqSectionRequest{}
 		resp      = response.DefaultSuccessResponse{}
 		respError = response.ErrorResponseDefault{}
 		ctx       = c.Request().Context()
@@ -36,46 +36,46 @@ func (cs *aboutCompanyHandler) CreateAboutCompany(c echo.Context) error {
 
 	user := conv.GetUserByIDByContext(c)
 	if user == 0 {
-		log.Errorf("[HANDLER] CreateAboutCompany - 1: Unautohrized")
+		log.Errorf("[HANDLER] CreateFaqSection - 1: Unautohrized")
 		respError.Meta.Message = "Unauthorized"
 		respError.Meta.Status = false
 		return c.JSON(http.StatusUnauthorized, respError)
 	}
 
 	if err = c.Bind(&req); err != nil {
-		log.Errorf("[HANDLER] CreateAboutCompany - 2: %v", err)
+		log.Errorf("[HANDLER] CreateFaqSection - 2: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(http.StatusUnprocessableEntity, respError)
 	}
 
 	if err = c.Validate(req); err != nil {
-		log.Errorf("[HANDLER] CreateAboutCompany - 3: %v", err)
+		log.Errorf("[HANDLER] CreateFaqSection - 3: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(http.StatusBadRequest, respError)
 	}
 
-	reqEntity := entity.AboutCompanyEntity{
+	reqEntity := entity.FaqSectionEntity{
 		Description: req.Description,
 	}
 
-	err = cs.AboutCompanyService.CreateAboutCompany(ctx, reqEntity)
+	err = cs.FaqSectionService.CreateFaqSection(ctx, reqEntity)
 	if err != nil {
-		log.Errorf("[HANDLER] CreateAboutCompany - 4: %v", err)
+		log.Errorf("[HANDLER] CreateFaqSection - 4: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(conv.SetHTTPStatusCode(err), respError)
 	}
-	resp.Meta.Message = "Success create about company"
+	resp.Meta.Message = "Success create faq section"
 	resp.Meta.Status = true
 	resp.Data = nil
 	resp.Pagination = nil
 	return c.JSON(http.StatusCreated, resp)
 }
 
-// DeleteByIDAboutCompany implements CLientSectionHandlerInterface.
-func (cs *aboutCompanyHandler) DeleteByIDAboutCompany(c echo.Context) error {
+// DeleteByIDFaqSection implements CLientSectionHandlerInterface.
+func (cs *faqSectionHandler) DeleteByIDFaqSection(c echo.Context) error {
 	var (
 		resp      = response.DefaultSuccessResponse{}
 		respError = response.ErrorResponseDefault{}
@@ -84,7 +84,7 @@ func (cs *aboutCompanyHandler) DeleteByIDAboutCompany(c echo.Context) error {
 
 	user := conv.GetUserByIDByContext(c)
 	if user == 0 {
-		log.Errorf("[HANDLER] DeleteAboutCompany - 1: Unautohrized")
+		log.Errorf("[HANDLER] DeleteFaqSection - 1: Unautohrized")
 		respError.Meta.Message = "UnAuthorized"
 		respError.Meta.Status = false
 		return c.JSON(http.StatusUnauthorized, respError)
@@ -93,16 +93,16 @@ func (cs *aboutCompanyHandler) DeleteByIDAboutCompany(c echo.Context) error {
 	idCompany := c.Param("id")
 	id, err := conv.StringToInt64(idCompany)
 	if err != nil {
-		log.Errorf("[HANDLER] DeleteAboutCompany - 2: %v", err)
+		log.Errorf("[HANDLER] DeleteFaqSection - 2: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 
 		return c.JSON(http.StatusBadRequest, respError)
 	}
 
-	err = cs.AboutCompanyService.DeleteByIDAboutCompany(ctx, id)
+	err = cs.FaqSectionService.DeleteByIDFaqSection(ctx, id)
 	if err != nil {
-		log.Errorf("[HANDLER] DeleteAboutCompany - 3: %v", err)
+		log.Errorf("[HANDLER] DeleteFaqSection - 3: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(conv.SetHTTPStatusCode(err), respError)
@@ -115,10 +115,10 @@ func (cs *aboutCompanyHandler) DeleteByIDAboutCompany(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-// EditByIDAboutCompany implements CLientSectionHandlerInterface.
-func (cs *aboutCompanyHandler) EditByIDAboutCompany(c echo.Context) error {
+// EditByIDFaqSection implements CLientSectionHandlerInterface.
+func (cs *faqSectionHandler) EditByIDFaqSection(c echo.Context) error {
 	var (
-		req       = request.AboutCompanyRequest{}
+		req       = request.FaqSectionRequest{}
 		resp      = response.DefaultSuccessResponse{}
 		respError = response.ErrorResponseDefault{}
 		ctx       = c.Request().Context()
@@ -126,148 +126,150 @@ func (cs *aboutCompanyHandler) EditByIDAboutCompany(c echo.Context) error {
 
 	user := conv.GetUserByIDByContext(c)
 	if user == 0 {
-		log.Errorf("[HANDLER] EditAboutCompany - 1: Unautohrized")
+		log.Errorf("[HANDLER] EditFaqSection - 1: Unautohrized")
 		respError.Meta.Message = "UnAuthorized"
 		respError.Meta.Status = false
 		return c.JSON(http.StatusUnauthorized, respError)
 	}
 
-	idCompany := c.Param("id")
-	id, err := conv.StringToInt64(idCompany)
+	idFaqSection := c.Param("id")
+	id, err := conv.StringToInt64(idFaqSection)
 	if err != nil {
-		log.Errorf("[HANDLER] EditAboutCompany - 2: %v", err)
+		log.Errorf("[HANDLER] EditFaqSection - 2: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(http.StatusBadRequest, respError)
 	}
 
 	if err = c.Bind(&req); err != nil {
-		log.Errorf("[HANDLER] EditAboutCompany - 3: %v", err)
+		log.Errorf("[HANDLER] EditFaqSection - 3: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(http.StatusUnprocessableEntity, respError)
 	}
 
 	if err = c.Validate(req); err != nil {
-		log.Errorf("[HANDLER] EditAboutCompany - 4: %v", err)
+		log.Errorf("[HANDLER] EditFaqSection - 4: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(http.StatusBadRequest, respError)
 	}
 
-	reqEntity := entity.AboutCompanyEntity{
+	reqEntity := entity.FaqSectionEntity{
 		ID:          id,
+		Title:       req.Title,
 		Description: req.Description,
 	}
 
-	err = cs.AboutCompanyService.EditByIDAboutCompany(ctx, reqEntity)
+	err = cs.FaqSectionService.EditByIDFaqSection(ctx, reqEntity)
 	if err != nil {
-		log.Errorf("[HANDLER] EditAboutCompany - 5: %v", err)
+		log.Errorf("[HANDLER] EditFaqSection - 5: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(conv.SetHTTPStatusCode(err), respError)
 	}
 
-	resp.Meta.Message = "Success edit about company"
+	resp.Meta.Message = "Success edit faq section"
 	resp.Meta.Status = true
 	resp.Data = nil
 	resp.Pagination = nil
 	return c.JSON(http.StatusOK, resp)
 }
 
-// FetchAllAboutCompany implements CLientSectionHandlerInterface.
-func (cs *aboutCompanyHandler) FetchAllAboutCompany(c echo.Context) error {
+// FetchAllFaqSection implements CLientSectionHandlerInterface.
+func (cs *faqSectionHandler) FetchAllFaqSection(c echo.Context) error {
 	var (
 		resp       = response.DefaultSuccessResponse{}
 		respError  = response.ErrorResponseDefault{}
 		ctx        = c.Request().Context()
-		respClient = []response.AboutCompanyResponse{}
+		respClient = []response.FaqSectionResponse{}
 	)
 
 	user := conv.GetUserByIDByContext(c)
 	if user == 0 {
-		log.Errorf("[HANDLER] FetchALLAboutCompany - 1: Unautohrized")
+		log.Errorf("[HANDLER] FetchALLFaqSection - 1: Unautohrized")
 		respError.Meta.Message = "Unauthorized"
 		respError.Meta.Status = false
 		return c.JSON(http.StatusUnauthorized, respError)
 	}
 
-	results, err := cs.AboutCompanyService.FetchAllAboutCompany(ctx)
+	results, err := cs.FaqSectionService.FetchAllFaqSection(ctx)
 	if err != nil {
-		log.Errorf("[HANDLER] FetchALLAboutCompany - 2: %v", err)
+		log.Errorf("[HANDLER] FetchALLFaqSection - 2: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(conv.SetHTTPStatusCode(err), respError)
 	}
 
 	for _, val := range results {
-		respClient = append(respClient, response.AboutCompanyResponse{
-			ID:           val.ID,
-			Desscription: val.Description,
+		respClient = append(respClient, response.FaqSectionResponse{
+			ID:          val.ID,
+			Title:       val.Title,
+			Description: val.Description,
 		})
 	}
-	resp.Meta.Message = "Success fetch all about company"
+	resp.Meta.Message = "Success fetch faq section"
 	resp.Meta.Status = true
 	resp.Data = respClient
 	resp.Pagination = nil
 	return c.JSON(http.StatusOK, resp)
 }
 
-// FetchByIDAboutCompany implements CLientSectionHandlerInterface.
-func (cs *aboutCompanyHandler) FetchByIDAboutCompany(c echo.Context) error {
+// FetchByIDFaqSection implements CLientSectionHandlerInterface.
+func (cs *faqSectionHandler) FetchByIDFaqSection(c echo.Context) error {
 	var (
-		resp             = response.DefaultSuccessResponse{}
-		respError        = response.ErrorResponseDefault{}
-		ctx              = c.Request().Context()
-		respAboutCompany = response.AboutCompanyResponse{}
+		resp           = response.DefaultSuccessResponse{}
+		respError      = response.ErrorResponseDefault{}
+		ctx            = c.Request().Context()
+		respFaqSection = response.FaqSectionResponse{}
 	)
 
 	user := conv.GetUserByIDByContext(c)
 	if user == 0 {
-		log.Errorf("[HANDLER] FetchByID AboutCompany - 1: Unautohrized")
+		log.Errorf("[HANDLER] FetchByID FaqSection - 1: Unautohrized")
 		respError.Meta.Message = "Unauthorized"
 		respError.Meta.Status = false
 		return c.JSON(http.StatusUnauthorized, respError)
 	}
 
-	idCompany := c.Param("id")
-	id, err := conv.StringToInt64(idCompany)
+	idFaqSection := c.Param("id")
+	id, err := conv.StringToInt64(idFaqSection)
 	if err != nil {
-		log.Errorf("[HANDLER] FetchByID AboutCompany - 2: %v", err)
+		log.Errorf("[HANDLER] FetchByID FaqSection - 2: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(http.StatusBadRequest, respError)
 	}
 
-	result, err := cs.AboutCompanyService.FetchByIDAboutCompany(ctx, id)
+	result, err := cs.FaqSectionService.FetchByIDFaqSection(ctx, id)
 	if err != nil {
-		log.Errorf("[HANDLER] FetchByID About Company - 3: %v", err)
+		log.Errorf("[HANDLER] FetchByID Faq Section - 3: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(conv.SetHTTPStatusCode(err), respError)
 	}
 
-	respAboutCompany.ID = result.ID
-	respAboutCompany.Desscription = result.Description
-	resp.Meta.Message = "Success fetch about company by ID"
+	respFaqSection.ID = result.ID
+	respFaqSection.Description = result.Description
+	resp.Meta.Message = "Success fetch faq section by ID"
 	resp.Meta.Status = true
-	resp.Data = respAboutCompany
+	resp.Data = respFaqSection
 	resp.Pagination = nil
 	return c.JSON(http.StatusOK, resp)
 }
 
-func NewAboutCompanyHandler(e *echo.Echo, AboutCompanyService service.AboutCompanyServiceInterface, cfg *config.Config) AboutCompanyHandlerInterface {
-	h := &aboutCompanyHandler{
-		AboutCompanyService: AboutCompanyService,
+func NewFaqSectionHandler(e *echo.Echo, FaqSectionService service.FaqSectionServiceInterface, cfg *config.Config) FaqSectionHandlerInterface {
+	h := &faqSectionHandler{
+		FaqSectionService: FaqSectionService,
 	}
 
 	mid := middleware.NewMiddleware(cfg)
-	aboutCompanyApp := e.Group("/about-company")
+	aboutCompanyApp := e.Group("/faq-sections")
 	adminApp := aboutCompanyApp.Group("/admin", mid.CheckToken())
-	adminApp.POST("", h.CreateAboutCompany)
-	adminApp.GET("", h.FetchAllAboutCompany)
-	adminApp.GET("/:id", h.FetchByIDAboutCompany)
-	adminApp.PUT("/:id", h.EditByIDAboutCompany)
-	adminApp.DELETE("/:id", h.DeleteByIDAboutCompany)
+	adminApp.POST("", h.CreateFaqSection)
+	adminApp.GET("", h.FetchAllFaqSection)
+	adminApp.GET("/:id", h.FetchByIDFaqSection)
+	adminApp.PUT("/:id", h.EditByIDFaqSection)
+	adminApp.DELETE("/:id", h.DeleteByIDFaqSection)
 	return h
 }
