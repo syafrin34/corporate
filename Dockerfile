@@ -33,3 +33,14 @@ EXPOSE 8080
 
 # Jalankan aplikasi
 CMD ["./main"]
+
+# docker build -t corporate:0.1.0 .
+# pastikan berada di direktori aplikasi
+# docker compose up
+#docker-compose down -v --remove-orphans
+#docker-compose build --no-cache
+#docker-compose up
+#docker compose down -v --> reset data volume 
+#docker compose up --build
+#docker compose up -d --> memanggil data volume
+

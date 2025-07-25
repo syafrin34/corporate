@@ -3,6 +3,7 @@ package config
 import (
 	//	"corporate/database/migrations/seeds"
 	"corporate/database/migrations/seeds"
+	"corporate/internal/core/domain/model"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
@@ -35,6 +36,16 @@ func (cfg Config) ConnectionPostgres() (*Postgres, error) {
 		return nil, err
 	}
 
+	// if err := db.AutoMigrate(&model.User{}, &model); err != nil {
+	// 	log.Fatal().Err(err).Msg("AutoMigrate failed")
+	// 	return nil, err
+	// }
+
+	if err := runMigration(db); err != nil {
+		log.Fatal().Err(err).Msg("Migration failed")
+		return nil, err
+	}
+
 	seeds.SeedAdmin(db)
 
 	sqlDB.SetMaxOpenConns(cfg.Psql.DBMaxOpen)
@@ -42,4 +53,24 @@ func (cfg Config) ConnectionPostgres() (*Postgres, error) {
 
 	return &Postgres{DB: db}, nil
 
+}
+
+func runMigration(db *gorm.DB) error {
+	log.Info().Msg("Running AutoMigrate...")
+
+	return db.AutoMigrate(
+		&model.User{},
+		&model.AboutCompany{},
+		&model.AboutCompanyKeynote{},
+		&model.Appointment{},
+		&model.ClientSection{},
+		&model.FAQSection{},
+		&model.HeroSection{},
+		&model.OurTeam{},
+		&model.PortoFolioSection{},
+		&model.PortofolioDetail{},
+		&model.PortofolioTestimonial{},
+		&model.ServiceSection{},
+		// Tambahkan model lain di sini sesuai kebutuhan
+	)
 }
