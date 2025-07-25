@@ -8,7 +8,7 @@ import (
 
 type AboutCompanyKeynote struct {
 	ID             int64 `gorm:"id,primaryKey"`
-	AboutCompanyID string
+	AboutCompanyID int64
 	Keynote        string
 	PathImage      *string
 	CreatedAt      time.Time
