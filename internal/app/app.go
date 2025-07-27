@@ -37,6 +37,7 @@ func RunServer() {
 	aboutCompanyKeynoteRepo := repository.NewAboutCompanyKeynoteRepository(db.DB)
 	faqRepo := repository.NewFaqSectionRepository(db.DB)
 	ourTeamRepo := repository.NewOurTeamRepository(db.DB)
+	serviceSectionRepo := repository.NewServiceSectionRepository(db.DB)
 
 	userService := service.NewUserService(userRepo, cfg, jwt)
 	heroSectionService := service.NewHeroSectionService(heroSectionRepo)
@@ -45,6 +46,7 @@ func RunServer() {
 	aboutCompanyKeynoteService := service.NewAboutCompanyKeynoteService(aboutCompanyKeynoteRepo, aboutCompanyRepo)
 	faqService := service.NewFaqSectionService(faqRepo)
 	ourTeamService := service.NewOurTeamService(ourTeamRepo)
+	serviceSectionService := service.NewServiceSectionService(serviceSectionRepo)
 	storageAdapter := storage.NewSupabase(cfg)
 
 	e := echo.New()
@@ -63,6 +65,7 @@ func RunServer() {
 	handler.NewAboutCompanyKeynoteHandler(e, aboutCompanyKeynoteService, cfg)
 	handler.NewFaqSectionHandler(e, faqService, cfg)
 	handler.NewOurTeamHandler(e, ourTeamService, cfg)
+	handler.NewServiceSectionHandler(e, serviceSectionService, cfg)
 
 	// starting server
 
