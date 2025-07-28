@@ -67,7 +67,7 @@ func runMigration(db *gorm.DB) error {
 		&model.FaqSection{},
 		&model.HeroSection{},
 		&model.OurTeam{},
-		&model.PortoFolioSection{},
+		&model.PortofolioSection{},
 		&model.PortofolioDetail{},
 		&model.PortofolioTestimonial{},
 		&model.ServiceSection{},
