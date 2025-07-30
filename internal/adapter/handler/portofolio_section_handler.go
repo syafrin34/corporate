@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-type PortofolioSectionServiceInterface interface {
+type PortofolioSectionHandlerInterface interface {
 	CreatePortofolioSection(c echo.Context) error
 	FetchAllPortofolioSection(c echo.Context) error
 	FetchByIDPortofolioSection(c echo.Context) error
@@ -264,7 +264,7 @@ func (p *portofolioSectionHandler) FetchByIDPortofolioSection(c echo.Context) er
 	return c.JSON(http.StatusOK, resp)
 }
 
-func NewPortofolioSectionHandler(e *echo.Echo, PortofolioSectionService service.PortofolioSectionServiceInterface, cfg *config.Config) PortofolioSectionServiceInterface {
+func NewPortofolioSectionHandler(e *echo.Echo, PortofolioSectionService service.PortofolioSectionServiceInterface, cfg *config.Config) PortofolioSectionHandlerInterface {
 	h := &portofolioSectionHandler{
 		PortofolioSectionService: PortofolioSectionService,
 	}
