@@ -41,6 +41,7 @@ func RunServer() {
 	appointmentRepo := repository.NewAppointmentRepository(db.DB)
 	portofolioRepo := repository.NewPortofolioSectionRepository(db.DB)
 	portofolioDetailRepo := repository.NewPortofolioDetailRepository(db.DB)
+	portofolioTestimonialRepo := repository.NewPortofolioTestimonialRepository(db.DB)
 
 	userService := service.NewUserService(userRepo, cfg, jwt)
 	heroSectionService := service.NewHeroSectionService(heroSectionRepo)
@@ -53,6 +54,7 @@ func RunServer() {
 	appointmentService := service.NewAppointmentService(appointmentRepo)
 	portofolioService := service.NewPortofolioSectionService(portofolioRepo)
 	portofolioDetailService := service.NewPortofolioDetailService(portofolioDetailRepo, portofolioRepo)
+	portofolioTestimonialService := service.NewPortofolioTestimonialService(portofolioTestimonialRepo, portofolioRepo)
 	storageAdapter := storage.NewSupabase(cfg)
 
 	e := echo.New()
@@ -75,6 +77,7 @@ func RunServer() {
 	handler.NewAppointmentHandler(e, appointmentService, cfg)
 	handler.NewPortofolioSectionHandler(e, portofolioService, cfg)
 	handler.NewPortofolioDetailHandler(e, portofolioDetailService, cfg)
+	handler.NewPortofolioTestimonialHandler(e, portofolioTestimonialService, cfg)
 
 	// starting server
 
