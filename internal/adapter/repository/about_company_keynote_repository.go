@@ -15,10 +15,37 @@ type AboutCompanyKeynoteInterface interface {
 	FetchByIDAboutCompanyKeynote(ctx context.Context, id int64) (*entity.AboutCompanyKeynoteEntity, error)
 	EditByIDAboutCompanyKeynote(ctx context.Context, req entity.AboutCompanyKeynoteEntity) error
 	DeleteByIDAboutCompanyKeynote(ctx context.Context, id int64) error
+	FetchByCompanyID(ctx context.Context, companyId int64) ([]entity.AboutCompanyKeynoteEntity, error)
 }
 
 type aboutCompanyKeynote struct {
 	DB *gorm.DB
+}
+
+// AboutByCompanyID implements AboutCompanyKeynoteInterface.
+func (a *aboutCompanyKeynote) FetchByCompanyID(ctx context.Context, companyId int64) ([]entity.AboutCompanyKeynoteEntity, error) {
+	rows, err := a.DB.Table("about_company_keynotes as ack").Select("ack.id", "ack.keynote",
+		"ack.about_company_id", "ack.path_image", "ac.description").Joins("inner join about_companies as ac on ac.id = ack.about_company_id").
+		Where("ack.company_id =  ? AND ack.deleted_at IS NULL", companyId).
+		Rows()
+	if err != nil {
+		log.Errorf("[REPOSITORY] FetchByCompanyKeynote - 1: %v", err)
+		return nil, err
+	}
+	//defer rows.Close()
+	var aboutCompanyKeynoteEntities []entity.AboutCompanyKeynoteEntity
+	for rows.Next() {
+		aboutCompanyKeynote := entity.AboutCompanyKeynoteEntity{}
+		err = rows.Scan(&aboutCompanyKeynote.ID, &aboutCompanyKeynote.Keynote, &aboutCompanyKeynote.AboutCompanyID, &aboutCompanyKeynote.PathImage, &aboutCompanyKeynote.AboutCompanyDescription)
+		if err != nil {
+			log.Errorf("[REPOSITORY] FetchAllByCompanyKeynote - 2: %v", err)
+			return nil, err
+		}
+		aboutCompanyKeynoteEntities = append(aboutCompanyKeynoteEntities, aboutCompanyKeynote)
+	}
+
+	return aboutCompanyKeynoteEntities, nil
+
 }
 
 // CreateAboutCompanyKeynote implements AboutCompanyKeynoteInterface.
@@ -76,7 +103,8 @@ func (a *aboutCompanyKeynote) EditByIDAboutCompanyKeynote(ctx context.Context, r
 func (a *aboutCompanyKeynote) FetchAllAboutCompanyKeynote(ctx context.Context) ([]entity.AboutCompanyKeynoteEntity, error) {
 
 	rows, err := a.DB.Table("about_company_keynotes as ack").Select("ack.id", "ack.keynote",
-		"ack.about_company_id", "ack.path_image", "ac.description").Joins("inner join about_companies as ac on ac.id = ack.about_company_id").Rows()
+		"ack.about_company_id", "ack.path_image", "ac.description").Joins("inner join about_companies as ac on ac.id = ack.about_company_id").
+		Where("ack.deleted_at IS NULL").Rows()
 	if err != nil {
 		log.Errorf("[REPOSITORY] FetchAllAboutCompanyKeynote - 1: %v", err)
 		return nil, err
@@ -100,7 +128,7 @@ func (a *aboutCompanyKeynote) FetchAllAboutCompanyKeynote(ctx context.Context) (
 func (a *aboutCompanyKeynote) FetchByIDAboutCompanyKeynote(ctx context.Context, id int64) (*entity.AboutCompanyKeynoteEntity, error) {
 
 	rows, err := a.DB.Table("about_company_keynotes as ack").Select("ack.id", "ack.keynote",
-		"ack.about_company_id", "ack.path_image", "ac.description").Joins("inner join about_companies as ac on ac.id = ack.about_company_id").Where("ack.id = ?", id).Rows()
+		"ack.about_company_id", "ack.path_image", "ac.description").Joins("inner join about_companies as ac on ac.id = ack.about_company_id").Where("ack.id = ? AND ack.deleted_at IS NULL", id).Rows()
 
 	if err != nil {
 		log.Errorf("[REPOSITORY] EditIDAboutCompanyKeynote - 1: %v", err)

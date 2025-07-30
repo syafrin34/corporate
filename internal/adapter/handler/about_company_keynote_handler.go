@@ -20,13 +20,14 @@ type AboutCompanyKeynoteHandlerInterface interface {
 	FetchByIDAboutCompanyKeynote(c echo.Context) error
 	EditByIDAboutCompanyKeynote(c echo.Context) error
 	DeleteByIDAboutCompanyKeynote(c echo.Context) error
+	FetchByCompanyID(c echo.Context) error
 }
-type AboutCompanyKeynoteHandler struct {
+type aboutCompanyKeynoteHandler struct {
 	AboutCompanyKeynoteService service.AboutCompanyKeynoteServiceInterface
 }
 
 // CreateAboutCompanyKeynote implements CLientSectionHandlerInterface.
-func (a *AboutCompanyKeynoteHandler) CreateAboutCompanyKeynote(c echo.Context) error {
+func (a *aboutCompanyKeynoteHandler) CreateAboutCompanyKeynote(c echo.Context) error {
 	var (
 		req       = request.AboutCompanyKeynoteRequest{}
 		resp      = response.DefaultSuccessResponse{}
@@ -76,8 +77,57 @@ func (a *AboutCompanyKeynoteHandler) CreateAboutCompanyKeynote(c echo.Context) e
 	return c.JSON(http.StatusCreated, resp)
 }
 
+func (a *aboutCompanyKeynoteHandler) FetchByCompanyID(c echo.Context) error {
+	var (
+		resp       = response.DefaultSuccessResponse{}
+		respError  = response.ErrorResponseDefault{}
+		ctx        = c.Request().Context()
+		respClient = []response.AboutCompanyKeynoteResponse{}
+	)
+
+	user := conv.GetUserByIDByContext(c)
+	if user == 0 {
+		log.Errorf("[HANDLER] FetchByCompanyId - 1: Unautohrized")
+		respError.Meta.Message = "Unauthorized"
+		respError.Meta.Status = false
+		return c.JSON(http.StatusUnauthorized, respError)
+	}
+
+	idAboutCompany := c.Param("companyId")
+	id, err := conv.StringToInt64(idAboutCompany)
+	if err != nil {
+		log.Errorf("[HANDLER] FetchByCompanyID  - 2: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(http.StatusBadRequest, respError)
+	}
+
+	results, err := a.AboutCompanyKeynoteService.FetchByCompanyID(ctx, id)
+	if err != nil {
+		log.Errorf("[HANDLER] FetchByCompanyID - 3: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+
+	for _, val := range results {
+		respClient = append(respClient, response.AboutCompanyKeynoteResponse{
+			ID:                      val.ID,
+			AboutCompanyID:          val.AboutCompanyID,
+			Keynote:                 val.Keynote,
+			PathImage:               val.PathImage,
+			AboutCompanyDescription: val.AboutCompanyDescription,
+		})
+	}
+	resp.Meta.Message = "Success fetch by company id keynote"
+	resp.Meta.Status = true
+	resp.Data = respClient
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
+}
+
 // DeleteByIDAboutCompanyKeynote implements CLientSectionHandlerInterface.
-func (a *AboutCompanyKeynoteHandler) DeleteByIDAboutCompanyKeynote(c echo.Context) error {
+func (a *aboutCompanyKeynoteHandler) DeleteByIDAboutCompanyKeynote(c echo.Context) error {
 	var (
 		resp      = response.DefaultSuccessResponse{}
 		respError = response.ErrorResponseDefault{}
@@ -118,7 +168,7 @@ func (a *AboutCompanyKeynoteHandler) DeleteByIDAboutCompanyKeynote(c echo.Contex
 }
 
 // EditByIDAboutCompanyKeynote implements CLientSectionHandlerInterface.
-func (a *AboutCompanyKeynoteHandler) EditByIDAboutCompanyKeynote(c echo.Context) error {
+func (a *aboutCompanyKeynoteHandler) EditByIDAboutCompanyKeynote(c echo.Context) error {
 	var (
 		req       = request.AboutCompanyKeynoteRequest{}
 		resp      = response.DefaultSuccessResponse{}
@@ -180,7 +230,7 @@ func (a *AboutCompanyKeynoteHandler) EditByIDAboutCompanyKeynote(c echo.Context)
 }
 
 // FetchAllAboutCompanyKeynote implements CLientSectionHandlerInterface.
-func (a *AboutCompanyKeynoteHandler) FetchAllAboutCompanyKeynote(c echo.Context) error {
+func (a *aboutCompanyKeynoteHandler) FetchAllAboutCompanyKeynote(c echo.Context) error {
 	var (
 		resp       = response.DefaultSuccessResponse{}
 		respError  = response.ErrorResponseDefault{}
@@ -221,7 +271,7 @@ func (a *AboutCompanyKeynoteHandler) FetchAllAboutCompanyKeynote(c echo.Context)
 }
 
 // FetchByIDAboutCompanyKeynote implements CLientSectionHandlerInterface.
-func (a *AboutCompanyKeynoteHandler) FetchByIDAboutCompanyKeynote(c echo.Context) error {
+func (a *aboutCompanyKeynoteHandler) FetchByIDAboutCompanyKeynote(c echo.Context) error {
 	var (
 		resp                    = response.DefaultSuccessResponse{}
 		respError               = response.ErrorResponseDefault{}
@@ -267,7 +317,7 @@ func (a *AboutCompanyKeynoteHandler) FetchByIDAboutCompanyKeynote(c echo.Context
 }
 
 func NewAboutCompanyKeynoteHandler(e *echo.Echo, AboutCompanyKeynoteService service.AboutCompanyKeynoteServiceInterface, cfg *config.Config) AboutCompanyKeynoteHandlerInterface {
-	h := &AboutCompanyKeynoteHandler{
+	h := &aboutCompanyKeynoteHandler{
 		AboutCompanyKeynoteService: AboutCompanyKeynoteService,
 	}
 
@@ -277,6 +327,7 @@ func NewAboutCompanyKeynoteHandler(e *echo.Echo, AboutCompanyKeynoteService serv
 	adminApp.POST("", h.CreateAboutCompanyKeynote)
 	adminApp.GET("", h.FetchAllAboutCompanyKeynote)
 	adminApp.GET("/:id", h.FetchByIDAboutCompanyKeynote)
+	adminApp.GET("/:company_id", nil)
 	adminApp.PUT("/:id", h.EditByIDAboutCompanyKeynote)
 	adminApp.DELETE("/:id", h.DeleteByIDAboutCompanyKeynote)
 	return h

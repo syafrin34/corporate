@@ -78,7 +78,9 @@ func (p *portofolioTestimonial) FetchAllPortofolioTestimonial(ctx context.Contex
 
 	rows, err := p.DB.Table("portofolio_testimonials as pt").
 		Select("pt.id", "pt.thumbnail", "pt.message", "pt.client_name", "pt.role", "ps.name").
-		Joins("inner join portofolio_sections as ps on ps.id = pt.portofolio_section_id").Order("created_at DESC").Rows()
+		Joins("inner join portofolio_sections as ps on ps.id = pt.portofolio_section_id").Order("created_at DESC").
+		Where("pt.deleted_at IS NULL").
+		Rows()
 	if err != nil {
 		log.Errorf("[REPOSITORY] EditIDPortofolioTestimonial - 1: %v", err)
 		return nil, err
@@ -108,7 +110,7 @@ func (p *portofolioTestimonial) FetchByIDPortofolioTestimonial(ctx context.Conte
 	rows, err := p.DB.Table("portofolio_testimonials as pt").
 		Select("pt.id", "pt.thumbnail", "pt.message", "pd.client_name", "pd.role", "ps.id", "ps.name", "ps.id", "ps.name", "ps.thumbnail").
 		Joins("inner join portofolio_sections as ps on ps.id = pt.portofolio_section_id").
-		Where("pt_id = ? ", id).Order("created_at DESC").Rows()
+		Where("pt_id = ? AND pt.deleted_at IS NULL", id).Order("created_at DESC").Rows()
 	if err != nil {
 		log.Errorf("[REPOSITORY] EditIDPortofolioTestimonial - 1: %v", err)
 		return nil, err

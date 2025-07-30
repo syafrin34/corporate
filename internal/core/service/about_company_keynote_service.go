@@ -14,11 +14,17 @@ type AboutCompanyKeynoteServiceInterface interface {
 	FetchByIDAboutCompanyKeynote(ctx context.Context, id int64) (*entity.AboutCompanyKeynoteEntity, error)
 	EditByIDAboutCompanyKeynote(ctx context.Context, req entity.AboutCompanyKeynoteEntity) error
 	DeleteByIDAboutCompanyKeynote(ctx context.Context, id int64) error
+	FetchByCompanyID(ctx context.Context, companyId int64) ([]entity.AboutCompanyKeynoteEntity, error)
 }
 
 type aboutCompanyKeynoteService struct {
 	aboutCompanyKeynoteRepo repository.AboutCompanyKeynoteInterface
 	aboutCompanyRepo        repository.AboutCompanyInterface
+}
+
+// FetchByCompanyID implements AboutCompanyKeynoteServiceInterface.
+func (a *aboutCompanyKeynoteService) FetchByCompanyID(ctx context.Context, companyId int64) ([]entity.AboutCompanyKeynoteEntity, error) {
+	return a.aboutCompanyKeynoteRepo.FetchByCompanyID(ctx, companyId)
 }
 
 // CreateAboutCompanyKeynote implements AboutCompanyKeynoteServiceInterface.

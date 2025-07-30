@@ -81,7 +81,10 @@ func (p *portofolioDetail) FetchAllPortofolioDetail(ctx context.Context) ([]enti
 
 	rows, err := p.DB.Table("portofolio_details as pd").
 		Select("pd.id", "pd.title", "pd.category", "pd.client_name", "pd.project_date", "ps.name").
-		Joins("inner join portofolio_sections as ps on ps.id = pd.portofolio_section_id").Order("created_at DESC").Rows()
+		Joins("inner join portofolio_sections as ps on ps.id = pd.portofolio_section_id").
+		Where("pd.deleted_at IS NULL").
+		Order("created_at DESC").
+		Rows()
 	if err != nil {
 		log.Errorf("[REPOSITORY] EditIDPortofolioDetail - 1: %v", err)
 		return nil, err
@@ -111,7 +114,7 @@ func (p *portofolioDetail) FetchByIDPortofolioDetail(ctx context.Context, id int
 	rows, err := p.DB.Table("portofolio_details as pd").
 		Select("pd.id", "pd.title", "pd.category", "pd.client_name", "pd.project_date", "pd.description", "pd.project_url", "ps.id", "ps.name", "ps.thumbnail").
 		Joins("inner join portofolio_sections as ps on ps.id = pd.portofolio_section_id").
-		Where("pd_id = ? ", id).Order("created_at DESC").Rows()
+		Where("pd_id = ? AND pd.deleted_at IS NULL", id).Order("pd.created_at DESC").Rows()
 	if err != nil {
 		log.Errorf("[REPOSITORY] EditIDPortofolioDetail - 1: %v", err)
 		return nil, err
