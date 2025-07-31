@@ -2,7 +2,8 @@
 migrate create -ext sql  -dir database/migrations -seq create_portofolio_testimonials_table
 
 // migrate database
-migrate -database "postgres://postgres:password@localhost:5432/corporate?sslmode=disable" -path database/migrations up
+migrate -database "postgres://postgres:postgres@localhost:5432/corporate?sslmode=disable" -path database/migrations up 
+/// diatas digunakan untuk db postgres berjalan di container dan container port di expose 5432 
 // migrate 
 //migrate -database "postgres://postgres:password@172.17.0.2:5432/corporate?sslmode=disable" -path database/migrations up
 
