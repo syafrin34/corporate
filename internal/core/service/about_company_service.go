@@ -12,6 +12,7 @@ type AboutCompanyServiceInterface interface {
 	FetchByIDAboutCompany(ctx context.Context, id int64) (*entity.AboutCompanyEntity, error)
 	EditByIDAboutCompany(ctx context.Context, req entity.AboutCompanyEntity) error
 	DeleteByIDAboutCompany(ctx context.Context, id int64) error
+	FetchAllCompanyAndKeynote(ctx context.Context) ([]entity.AboutCompanyEntity, error)
 }
 
 type aboutCompanyService struct {

@@ -20,10 +20,41 @@ type HeroSectionHandlerInterface interface {
 	FetchByIDHeroSection(c echo.Context) error
 	EditByIDHeroSection(c echo.Context) error
 	DeleteByIDHeroSection(c echo.Context) error
+	FetchHeroDataHome(c echo.Context) error
 }
 
 type heroSectionHandler struct {
 	heroSectionService service.HeroSectionServiceInterface
+}
+
+// FetchHeroDataHome implements HeroSectionHandlerInterface.
+func (h *heroSectionHandler) FetchHeroDataHome(c echo.Context) error {
+	var (
+		respHero  = response.HeroSectionResponse{}
+		resp      = response.DefaultSuccessResponse{}
+		respError = response.ErrorResponseDefault{}
+		ctx       = c.Request().Context()
+	)
+
+	results, err := h.heroSectionService.FetchAllHeroSection(ctx)
+	if err != nil {
+		log.Errorf("[HANDLER] FetchALLHeroDataHome - 1: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+
+	respHero.Banner = results[0].Banner
+	respHero.Heading = results[0].Heading
+	respHero.SubHeading = results[0].SubHeading
+	respHero.PathVideo = results[0].PathVideo
+	respHero.ID = results[0].ID
+
+	resp.Meta.Message = "Success Fetch hero data home"
+	resp.Meta.Status = true
+	resp.Data = respHero
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
 }
 
 // CreateHeroSection implements HeroSectionHandlerInterface.
@@ -279,6 +310,7 @@ func NewHeroSectionHandler(c *echo.Echo, cfg *config.Config, heroSectionService 
 	}
 	mid := middleware.NewMiddleware(cfg)
 	heroApp := c.Group("/hero-sections")
+	heroApp.GET("", heroHandler.FetchHeroDataHome)
 	adminApp := heroApp.Group("/admin", mid.CheckToken())
 	adminApp.GET("", heroHandler.FetchAllHeroSection)
 	adminApp.POST("", heroHandler.CreateHeroSection)

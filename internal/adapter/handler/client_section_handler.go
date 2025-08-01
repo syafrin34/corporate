@@ -20,6 +20,7 @@ type ClientSectionHandlerInterface interface {
 	FetchByIDClientSection(c echo.Context) error
 	EditByIDClientSection(c echo.Context) error
 	DeleteByIDClientSection(c echo.Context) error
+	FetchAllClientSectionHOme(c echo.Context) error
 }
 type clientSectionHandler struct {
 	clientSectionService service.ClientSectionServiceInterface
@@ -73,6 +74,35 @@ func (cs *clientSectionHandler) CreateClientSection(c echo.Context) error {
 	resp.Data = nil
 	resp.Pagination = nil
 	return c.JSON(http.StatusCreated, resp)
+}
+
+func (cs *clientSectionHandler) FetchAllClientSectionHOme(c echo.Context) error {
+	var (
+		respClients = []response.ClientSectionResponse{}
+		resp        = response.DefaultSuccessResponse{}
+		respError   = response.ErrorResponseDefault{}
+		ctx         = c.Request().Context()
+	)
+	results, err := cs.clientSectionService.FetchAllClientSection(ctx)
+	if err != nil {
+		log.Errorf("[HANDLER] FetchALLClientSection - 2: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+
+	for _, val := range results {
+		respClients = append(respClients, response.ClientSectionResponse{
+			ID:       val.ID,
+			Name:     val.Name,
+			PathIcon: val.PathIcon,
+		})
+	}
+	resp.Meta.Message = "Success fetch all client section home"
+	resp.Meta.Status = true
+	resp.Data = respClients
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
 }
 
 // DeleteByIDClientSection implements CLientSectionHandlerInterface.
@@ -267,6 +297,7 @@ func NewClientSectionHandler(e *echo.Echo, clientSectionService service.ClientSe
 
 	mid := middleware.NewMiddleware(cfg)
 	clientApp := e.Group("/client-section")
+	clientApp.GET("", h.FetchAllClientSectionHOme)
 	adminApp := clientApp.Group("/admin", mid.CheckToken())
 	adminApp.POST("", h.CreateClientSection)
 	adminApp.GET("", h.FetchAllClientSection)

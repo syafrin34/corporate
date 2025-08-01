@@ -20,9 +20,42 @@ type AboutCompanyHandlerInterface interface {
 	FetchByIDAboutCompany(c echo.Context) error
 	EditByIDAboutCompany(c echo.Context) error
 	DeleteByIDAboutCompany(c echo.Context) error
+	FetchAllCompanyHome(c echo.Context) error
 }
 type aboutCompanyHandler struct {
 	AboutCompanyService service.AboutCompanyServiceInterface
+}
+
+// FetchAllCompanyHome implements AboutCompanyHandlerInterface.
+func (cs *aboutCompanyHandler) FetchAllCompanyHome(c echo.Context) error {
+	var (
+		respCompany = response.AboutCompanyResponse{}
+		resp        = response.DefaultSuccessResponse{}
+		respError   = response.ErrorResponseDefault{}
+		ctx         = c.Request().Context()
+	)
+	results, err := cs.AboutCompanyService.FetchAllAboutCompany(ctx)
+	if err != nil {
+		log.Errorf("[HANDLER] FetchAllCompanyHome - 1: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+	respCompany.ID = results[0].ID
+	respCompany.Description = results[0].Description
+	for _, val := range results[0].Keynote {
+		respCompany.CompanyKeyNotes = append(respCompany.CompanyKeyNotes, response.AboutCompanyKeynoteResponse{
+			ID:             val.ID,
+			AboutCompanyID: val.AboutCompanyID,
+			Keynote:        val.Keynote,
+			PathImage:      val.PathImage,
+		})
+	}
+	resp.Meta.Message = "Success fetch all company home"
+	resp.Meta.Status = true
+	resp.Data = respCompany
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
 }
 
 // CreateAboutCompany implements CLientSectionHandlerInterface.
@@ -202,8 +235,8 @@ func (cs *aboutCompanyHandler) FetchAllAboutCompany(c echo.Context) error {
 
 	for _, val := range results {
 		respClient = append(respClient, response.AboutCompanyResponse{
-			ID:           val.ID,
-			Desscription: val.Description,
+			ID:          val.ID,
+			Description: val.Description,
 		})
 	}
 	resp.Meta.Message = "Success fetch all about company"
@@ -248,7 +281,7 @@ func (cs *aboutCompanyHandler) FetchByIDAboutCompany(c echo.Context) error {
 	}
 
 	respAboutCompany.ID = result.ID
-	respAboutCompany.Desscription = result.Description
+	respAboutCompany.Description = result.Description
 	resp.Meta.Message = "Success fetch about company by ID"
 	resp.Meta.Status = true
 	resp.Data = respAboutCompany
@@ -263,6 +296,7 @@ func NewAboutCompanyHandler(e *echo.Echo, AboutCompanyService service.AboutCompa
 
 	mid := middleware.NewMiddleware(cfg)
 	aboutCompanyApp := e.Group("/about-company")
+	aboutCompanyApp.GET("", h.FetchAllCompanyHome)
 	adminApp := aboutCompanyApp.Group("/admin", mid.CheckToken())
 	adminApp.POST("", h.CreateAboutCompany)
 	adminApp.GET("", h.FetchAllAboutCompany)

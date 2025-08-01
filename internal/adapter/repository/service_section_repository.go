@@ -77,16 +77,16 @@ func (s *serviceSection) FetchAllServiceSection(ctx context.Context) ([]entity.S
 		return nil, err
 	}
 
-	var heroSectionsEntities []entity.ServiceSectionEntity
+	var serviceSectionsEntities []entity.ServiceSectionEntity
 	for _, v := range modelServiceSection {
-		heroSectionsEntities = append(heroSectionsEntities, entity.ServiceSectionEntity{
+		serviceSectionsEntities = append(serviceSectionsEntities, entity.ServiceSectionEntity{
 			ID:       v.ID,
 			Name:     v.Name,
 			PathIcon: v.PathIcon,
 			Tagline:  v.Tagline,
 		})
 	}
-	return heroSectionsEntities, nil
+	return serviceSectionsEntities, nil
 }
 
 // FetchByIDServiceSection implements ServiceSectionInterface.
