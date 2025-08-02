@@ -20,9 +20,41 @@ type ServiceSectionHandlerInterface interface {
 	FetchByIDServiceSection(c echo.Context) error
 	EditByIDServiceSection(c echo.Context) error
 	DeleteByIDServiceSection(c echo.Context) error
+	FetchAllServiceHome(c echo.Context) error
 }
 type serviceSectionHandler struct {
 	ServiceSectionService service.ServiceSectionServiceInterface
+}
+
+func (s *serviceSectionHandler) FetchAllServiceHome(c echo.Context) error {
+	var (
+		respServices = []response.ServiceSectionResponse{}
+		resp         = response.DefaultSuccessResponse{}
+		respError    = response.ErrorResponseDefault{}
+		ctx          = c.Request().Context()
+	)
+
+	results, err := s.ServiceSectionService.FetchAllServiceSection(ctx)
+	if err != nil {
+		log.Errorf("[HANDLER] FetchAllServiceHome - 1: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+	for _, val := range results {
+		respServices = append(respServices, response.ServiceSectionResponse{
+			ID:       val.ID,
+			Name:     val.Name,
+			Tagline:  val.Tagline,
+			PathIcon: val.PathIcon,
+		})
+	}
+
+	resp.Data = respServices
+	resp.Meta.Message = "Success fetch all service home"
+	resp.Meta.Status = true
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
 }
 
 // CreateServiceSection implements CLientSectionHandlerInterface.
@@ -271,6 +303,7 @@ func NewServiceSectionHandler(e *echo.Echo, ServiceSectionService service.Servic
 
 	mid := middleware.NewMiddleware(cfg)
 	serviceSectionApp := e.Group("/service-sections")
+	serviceSectionApp.GET("", h.FetchAllServiceHome)
 	adminApp := serviceSectionApp.Group("/admin", mid.CheckToken())
 	adminApp.POST("", h.CreateServiceSection)
 	adminApp.GET("", h.FetchAllServiceSection)

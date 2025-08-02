@@ -20,6 +20,7 @@ type OurTeamHandlerInterface interface {
 	FetchByIDOurTeam(c echo.Context) error
 	EditByIDOurTeam(c echo.Context) error
 	DeleteByIDOurTeam(c echo.Context) error
+	FetchAllOurTeamHome(c echo.Context) error
 }
 type ourTeamHandler struct {
 	OurTeamService service.OurTeamServiceInterface
@@ -75,6 +76,39 @@ func (o *ourTeamHandler) CreateOurTeam(c echo.Context) error {
 	resp.Data = nil
 	resp.Pagination = nil
 	return c.JSON(http.StatusCreated, resp)
+}
+
+func (o *ourTeamHandler) FetchAllOurTeamHome(c echo.Context) error {
+	var (
+		respOurTeams = []response.OurTeamResponse{}
+		resp         = response.DefaultSuccessResponse{}
+		respError    = response.ErrorResponseDefault{}
+		ctx          = c.Request().Context()
+	)
+	results, err := o.OurTeamService.FetchAllOurTeam(ctx)
+
+	if err != nil {
+		log.Errorf("[HANDLER] Fetch OurTeam - 5: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+
+	for _, val := range results {
+		respOurTeams = append(respOurTeams, response.OurTeamResponse{
+			ID:        val.ID,
+			Name:      val.Name,
+			Role:      val.Role,
+			PathPhoto: val.PathPhoto,
+			Tagline:   val.Tagline,
+		})
+	}
+	resp.Meta.Message = "Success fetch all our team home"
+	resp.Meta.Status = true
+	resp.Data = respOurTeams
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
+
 }
 
 // DeleteByIDOurTeam implements CLientSectionHandlerInterface.
@@ -275,6 +309,7 @@ func NewOurTeamHandler(e *echo.Echo, OurTeamService service.OurTeamServiceInterf
 
 	mid := middleware.NewMiddleware(cfg)
 	ourTeamApp := e.Group("/our-teams")
+	ourTeamApp.GET("", h.FetchAllOurTeamHome)
 	adminApp := ourTeamApp.Group("/admin", mid.CheckToken())
 	adminApp.POST("", h.CreateOurTeam)
 	adminApp.GET("", h.FetchAllOurTeam)

@@ -20,6 +20,7 @@ type FaqSectionHandlerInterface interface {
 	FetchByIDFaqSection(c echo.Context) error
 	EditByIDFaqSection(c echo.Context) error
 	DeleteByIDFaqSection(c echo.Context) error
+	FetchAllFaqSectionHome(c echo.Context) error
 }
 type faqSectionHandler struct {
 	FaqSectionService service.FaqSectionServiceInterface
@@ -72,6 +73,31 @@ func (cs *faqSectionHandler) CreateFaqSection(c echo.Context) error {
 	resp.Data = nil
 	resp.Pagination = nil
 	return c.JSON(http.StatusCreated, resp)
+}
+
+func (cs *faqSectionHandler) FetchAllFaqSectionHome(c echo.Context) error {
+	var (
+		respFaqs  = []response.FaqSectionResponse{}
+		resp      = response.DefaultSuccessResponse{}
+		respError = response.ErrorResponseDefault{}
+		ctx       = c.Request().Context()
+	)
+
+	results, err := cs.FaqSectionService.FetchAllFaqSection(ctx)
+	if err != nil {
+		log.Errorf("[HANDLER] DeleteFaqSection - 3: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+	for _, val := range results {
+		respFaqs = append(respFaqs, response.FaqSectionResponse{
+			ID:          val.ID,
+			Title:       val.Title,
+			Description: val.Description,
+		})
+	}
+
 }
 
 // DeleteByIDFaqSection implements CLientSectionHandlerInterface.
@@ -265,6 +291,7 @@ func NewFaqSectionHandler(e *echo.Echo, FaqSectionService service.FaqSectionServ
 
 	mid := middleware.NewMiddleware(cfg)
 	aboutCompanyApp := e.Group("/faq-sections")
+	aboutCompanyApp.GET("", h.FetchAllFaqSectionHome)
 	adminApp := aboutCompanyApp.Group("/admin", mid.CheckToken())
 	adminApp.POST("", h.CreateFaqSection)
 	adminApp.GET("", h.FetchAllFaqSection)

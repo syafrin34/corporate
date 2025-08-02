@@ -34,16 +34,16 @@ func (cs *aboutCompanyHandler) FetchAllCompanyHome(c echo.Context) error {
 		respError   = response.ErrorResponseDefault{}
 		ctx         = c.Request().Context()
 	)
-	results, err := cs.AboutCompanyService.FetchAllAboutCompany(ctx)
+	result, err := cs.AboutCompanyService.FetchAllCompanyAndKeynote(ctx)
 	if err != nil {
 		log.Errorf("[HANDLER] FetchAllCompanyHome - 1: %v", err)
 		respError.Meta.Message = err.Error()
 		respError.Meta.Status = false
 		return c.JSON(conv.SetHTTPStatusCode(err), respError)
 	}
-	respCompany.ID = results[0].ID
-	respCompany.Description = results[0].Description
-	for _, val := range results[0].Keynote {
+	respCompany.ID = result.ID
+	respCompany.Description = result.Description
+	for _, val := range result.Keynote {
 		respCompany.CompanyKeyNotes = append(respCompany.CompanyKeyNotes, response.AboutCompanyKeynoteResponse{
 			ID:             val.ID,
 			AboutCompanyID: val.AboutCompanyID,

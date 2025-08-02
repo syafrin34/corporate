@@ -20,6 +20,8 @@ type PortofolioTestimonialHandlerInterface interface {
 	FetchByIDPortofolioTestimonial(c echo.Context) error
 	EditByIDPortofolioTestimonial(c echo.Context) error
 	DeleteByIDPortofolioTestimonial(c echo.Context) error
+
+	FetchAllPortofolioTestimonialHome(c echo.Context) error
 }
 type portofolioTestimonialHandler struct {
 	PortofolioTestimonialService service.PortofolioTestimonialServiceInterface
@@ -74,6 +76,42 @@ func (p *portofolioTestimonialHandler) CreatePortofolioTestimonial(c echo.Contex
 	resp.Meta.Message = "Success create portofolio testimonial"
 	resp.Meta.Status = true
 	resp.Data = nil
+	resp.Pagination = nil
+	return c.JSON(http.StatusCreated, resp)
+}
+
+func (p *portofolioTestimonialHandler) FetchAllPortofolioTestimonialHome(c echo.Context) error {
+	var (
+		respTestimonials = []response.PortofolioTestimonialResponse{}
+		resp             = response.DefaultSuccessResponse{}
+		respError        = response.ErrorResponseDefault{}
+		ctx              = c.Request().Context()
+	)
+
+	results, err := p.PortofolioTestimonialService.FetchAllPortofolioTestimonial(ctx)
+	if err != nil {
+		log.Errorf("[HANDLER] FetchPortofolioTestimonialHome - 1: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+
+	for _, val := range results {
+		respTestimonials = append(respTestimonials, response.PortofolioTestimonialResponse{
+			ID:         val.ID,
+			Thumbnail:  val.Thumbnail,
+			Message:    val.Message,
+			ClientName: val.ClientName,
+			Role:       val.Role,
+			PortoFolioSection: response.PortofolioSectionResponse{
+				Name: val.PortoFolioSection.Name,
+			},
+		})
+	}
+
+	resp.Meta.Message = "Success fetch portofolio testimonial home"
+	resp.Meta.Status = true
+	resp.Data = respTestimonials
 	resp.Pagination = nil
 	return c.JSON(http.StatusCreated, resp)
 }
@@ -283,6 +321,7 @@ func NewPortofolioTestimonialHandler(e *echo.Echo, PortofolioTestimonialService 
 
 	mid := middleware.NewMiddleware(cfg)
 	portofolioSectionApp := e.Group("/portofolio-testimonial")
+	portofolioSectionApp.GET("", h.FetchAllPortofolioTestimonialHome)
 	adminApp := portofolioSectionApp.Group("/admin", mid.CheckToken())
 	adminApp.POST("", h.CreatePortofolioTestimonial)
 	adminApp.GET("", h.FetchAllPortofolioTestimonial)

@@ -20,6 +20,7 @@ type PortofolioSectionHandlerInterface interface {
 	FetchByIDPortofolioSection(c echo.Context) error
 	EditByIDPortofolioSection(c echo.Context) error
 	DeleteByIDPortofolioSection(c echo.Context) error
+	FetchAllPortofolioSectionHome(c echo.Context) error
 }
 type portofolioSectionHandler struct {
 	PortofolioSectionService service.PortofolioSectionServiceInterface
@@ -74,6 +75,37 @@ func (p *portofolioSectionHandler) CreatePortofolioSection(c echo.Context) error
 	resp.Data = nil
 	resp.Pagination = nil
 	return c.JSON(http.StatusCreated, resp)
+}
+
+func (p *portofolioSectionHandler) FetchAllPortofolioSectionHome(c echo.Context) error {
+	var (
+		respPorto = []response.PortofolioSectionResponse{}
+		resp      = response.DefaultSuccessResponse{}
+		respError = response.ErrorResponseDefault{}
+		ctx       = c.Request().Context()
+	)
+	results, err := p.PortofolioSectionService.FetchAllPortofolioSection(ctx)
+	if err != nil {
+		log.Errorf("[HANDLER] CreatePortofolioSection - 4: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+
+	for _, val := range results {
+		respPorto = append(respPorto, response.PortofolioSectionResponse{
+			ID:        val.ID,
+			Thumbnail: val.Thumbnail,
+			Name:      val.Name,
+			Tagline:   val.Tagline,
+		})
+	}
+	resp.Meta.Message = "Success fetch all portofolio home"
+	resp.Meta.Status = true
+	resp.Data = respPorto
+	resp.Pagination = nil
+	return c.JSON(http.StatusCreated, resp)
+
 }
 
 // DeleteByIDPortofolioSection implements CLientSectionHandlerInterface.
@@ -271,6 +303,7 @@ func NewPortofolioSectionHandler(e *echo.Echo, PortofolioSectionService service.
 
 	mid := middleware.NewMiddleware(cfg)
 	portofolioSectionApp := e.Group("/portofolio-sections")
+	portofolioSectionApp.GET("", h.FetchAllPortofolioSectionHome)
 	adminApp := portofolioSectionApp.Group("/admin", mid.CheckToken())
 	adminApp.POST("", h.CreatePortofolioSection)
 	adminApp.GET("", h.FetchAllPortofolioSection)
