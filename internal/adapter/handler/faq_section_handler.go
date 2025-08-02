@@ -97,6 +97,11 @@ func (cs *faqSectionHandler) FetchAllFaqSectionHome(c echo.Context) error {
 			Description: val.Description,
 		})
 	}
+	resp.Meta.Message = "Success fetch All faq section home"
+	resp.Meta.Status = true
+	resp.Data = respFaqs
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
 
 }
 
