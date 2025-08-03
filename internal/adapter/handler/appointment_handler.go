@@ -2,11 +2,14 @@ package handler
 
 import (
 	"corporate/config"
+	"corporate/internal/adapter/handler/request"
 	"corporate/internal/adapter/handler/response"
+	"corporate/internal/core/domain/entity"
 	"corporate/internal/core/service"
 	"corporate/utils/conv"
 	"corporate/utils/middleware"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -18,6 +21,7 @@ type AppointmentHandlerInterface interface {
 	FetchByIDAppointment(c echo.Context) error
 	//EditByIDAppointment(c echo.Context) error
 	DeleteByIDAppointment(c echo.Context) error
+	CreateAppointment(c echo.Context) error
 }
 type appointmentHandler struct {
 	AppointmentService service.AppointmentServiceInterface
@@ -62,6 +66,62 @@ func (a *appointmentHandler) DeleteByIDAppointment(c echo.Context) error {
 	resp.Data = nil
 	resp.Pagination = nil
 	return c.JSON(http.StatusOK, resp)
+}
+
+func (a *appointmentHandler) CreateAppointment(c echo.Context) error {
+	var (
+		resp      = response.DefaultSuccessResponse{}
+		respError = response.ErrorResponseDefault{}
+		req       = request.AppointmentRequest{}
+		ctx       = c.Request().Context()
+	)
+
+	if err = c.Bind(&req); err != nil {
+		log.Errorf("[HANDLER] CreateAppointment - 1: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(http.StatusUnprocessableEntity, respError)
+	}
+
+	if err = c.Validate(req); err != nil {
+		log.Errorf("[HANDLER] CreateAppointment - 2: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(http.StatusBadRequest, respError)
+	}
+
+	stringprojectDate, err := time.Parse("2006-01-02", req.MeetAt)
+	if err != nil {
+		log.Errorf("[HANDLER] CreateAppointment - 3: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(http.StatusBadRequest, respError)
+	}
+
+	reqEntity := entity.AppointmentEntity{
+		ServiceID:   req.ServiceID,
+		Name:        req.Name,
+		Email:       req.Email,
+		PhoneNumber: req.PhoneNumber,
+		Brief:       req.Brief,
+		Budget:      req.Budget,
+		MeetAt:      stringprojectDate,
+	}
+
+	err = a.AppointmentService.CreateAppointment(ctx, reqEntity)
+	if err != nil {
+		log.Errorf("[HANDLER] CreateAppointment - 4: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+
+	resp.Meta.Message = "Success create appointment"
+	resp.Meta.Status = true
+	resp.Data = nil
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
+
 }
 
 // FetchAllAppointment implements CLientSectionHandlerInterface.
@@ -166,6 +226,7 @@ func NewAppointmentHandler(e *echo.Echo, AppointmentService service.AppointmentS
 
 	mid := middleware.NewMiddleware(cfg)
 	appointmentApp := e.Group("/appointments")
+	appointmentApp.POST("", h.CreateAppointment)
 	adminApp := appointmentApp.Group("/admin", mid.CheckToken())
 	//adminApp.POST("", h.CreateAppointment)
 	adminApp.GET("", h.FetchAllAppointment)

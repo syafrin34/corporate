@@ -21,9 +21,54 @@ type PortofolioDetailHandlerInterface interface {
 	FetchByIDPortofolioDetail(c echo.Context) error
 	EditByIDPortofolioDetail(c echo.Context) error
 	DeleteByIDPortofolioDetail(c echo.Context) error
+	FetchDetailPortofolioByPortoID(c echo.Context) error
 }
 type portofolioDetailHandler struct {
 	PortofolioDetailService service.PortofolioDetailServiceInterface
+}
+
+func (p *portofolioDetailHandler) FetchDetailPortofolioByPortoID(c echo.Context) error {
+
+	var (
+		respDetail = response.PortofolioDetailResponse{}
+		resp       = response.DefaultSuccessResponse{}
+		respError  = response.ErrorResponseDefault{}
+		ctx        = c.Request().Context()
+	)
+	idPorto := c.Param("id")
+	id, err := conv.StringToInt64(idPorto)
+	if err != nil {
+		log.Errorf("[HANDLER] DeletePortofolioDetail - 2: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+
+		return c.JSON(http.StatusBadRequest, respError)
+	}
+	result, err := p.PortofolioDetailService.FetchDetailPortofolioByPortoID(ctx, id)
+	if err != nil {
+		log.Errorf("[HANDLER] DeletePortofolioDetail - 3: %v", err)
+		respError.Meta.Message = err.Error()
+		respError.Meta.Status = false
+		return c.JSON(conv.SetHTTPStatusCode(err), respError)
+	}
+
+	respDetail.ID = result.ID
+	respDetail.Category = result.Category
+	respDetail.ClientName = result.ClientName
+	respDetail.ProjectDate = result.ProjectDate.Format("02 January 2006")
+	respDetail.ProjectUrl = result.ProjectUrl
+	respDetail.Title = result.Title
+	respDetail.Description = result.Description
+	respDetail.PortofolioSection.ID = result.PortofolioSection.ID
+	respDetail.PortofolioSection.Name = result.PortofolioSection.Name
+	respDetail.PortofolioSection.Thumbnail = result.PortofolioSection.Thumbnail
+	respDetail.PortofolioSection.ID = result.PortofolioSection.ID
+	resp.Meta.Message = "Success Fetch portofolio detail"
+	resp.Meta.Status = true
+	resp.Data = respDetail
+	resp.Pagination = nil
+	return c.JSON(http.StatusOK, resp)
+
 }
 
 // CreatePortofolioDetail implements CLientSectionHandlerInterface.
@@ -310,8 +355,9 @@ func NewPortofolioDetailHandler(e *echo.Echo, PortofolioDetailService service.Po
 	}
 
 	mid := middleware.NewMiddleware(cfg)
-	portofolioSectionApp := e.Group("/portofolio-details")
-	adminApp := portofolioSectionApp.Group("/admin", mid.CheckToken())
+	portofolioDetailApp := e.Group("/portofolio-details")
+	portofolioDetailApp.GET("/:id", h.FetchDetailPortofolioByPortoID)
+	adminApp := portofolioDetailApp.Group("/admin", mid.CheckToken())
 	adminApp.POST("", h.CreatePortofolioDetail)
 	adminApp.GET("", h.FetchAllPortofolioDetail)
 	adminApp.GET("/:id", h.FetchByIDPortofolioDetail)

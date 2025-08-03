@@ -10,6 +10,7 @@ require (
 	github.com/andybalholm/brotli v1.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
+	github.com/go-mail/mail v2.3.1+incompatible // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.27.0 // indirect
@@ -41,6 +42,7 @@ require (
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
 require (

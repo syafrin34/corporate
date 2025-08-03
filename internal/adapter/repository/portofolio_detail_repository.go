@@ -15,10 +15,45 @@ type PortofolioDetailInterface interface {
 	FetchByIDPortofolioDetail(ctx context.Context, id int64) (*entity.PortofolioDetailEntity, error)
 	EditByIDPortofolioDetail(ctx context.Context, req entity.PortofolioDetailEntity) error
 	DeleteByIDPortofolioDetail(ctx context.Context, id int64) error
+	FetchdetailPortofolioByPortoID(ctx context.Context, id int64) (*entity.PortofolioDetailEntity, error)
 }
 
 type portofolioDetail struct {
 	DB *gorm.DB
+}
+
+// FetchdetailPortofolioByPortoID implements PortofolioDetailInterface.
+func (p *portofolioDetail) FetchdetailPortofolioByPortoID(ctx context.Context, portoID int64) (*entity.PortofolioDetailEntity, error) {
+	rows, err := p.DB.Table("portofolio_details as pd").
+		Select("pd.id", "pd.title", "pd.category", "pd.client_name", "pd.project_date", "pd.description", "pd.project_url", "ps.id", "ps.name", "ps.thumbnail").
+		Joins("inner join portofolio_sections as ps on ps.id = pd.portofolio_section_id").
+		Where("ps_id = ? AND pd.deleted_at IS NULL", portoID).Order("pd.created_at DESC").Rows()
+	if err != nil {
+		log.Errorf("[REPOSITORY] FetchDetailPortofolioByPortoID - 1: %v", err)
+		return nil, err
+	}
+
+	var portofolioDetailEntity entity.PortofolioDetailEntity
+	for rows.Next() {
+		err = rows.Scan(
+			&portofolioDetailEntity.ID,
+			&portofolioDetailEntity.Title,
+			&portofolioDetailEntity.Category,
+			&portofolioDetailEntity.ClientName,
+			&portofolioDetailEntity.ProjectDate,
+			&portofolioDetailEntity.Description,
+			&portofolioDetailEntity.ProjectUrl,
+			&portofolioDetailEntity.PortofolioSection.ID,
+			&portofolioDetailEntity.PortofolioSection.Name,
+			&portofolioDetailEntity.PortofolioSection.Thumbnail,
+		)
+
+		if err != nil {
+			log.Errorf("[REPOSITORY] FetchDetailPortofolioByPortoID - 2: %v", err)
+			return nil, err
+		}
+	}
+	return &portofolioDetailEntity, nil
 }
 
 // CreatePortofolioDetail implements PortofolioDetailInterface.

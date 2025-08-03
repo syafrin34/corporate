@@ -4,6 +4,7 @@ import (
 	"context"
 	"corporate/config"
 	"corporate/internal/adapter/handler"
+	"corporate/internal/adapter/messaging"
 	"corporate/internal/adapter/repository"
 	"corporate/internal/adapter/storage"
 	"corporate/internal/core/service"
@@ -30,6 +31,7 @@ func RunServer() {
 	}
 
 	jwt := auth.NewJwt(cfg)
+	emailMessage := messaging.NewEmailMessaging(cfg)
 	userRepo := repository.NewUserRepository(db.DB)
 	heroSectionRepo := repository.NewHeroSectionRepository(db.DB)
 	clientSectionRepo := repository.NewClientSectionRepository(db.DB)
@@ -53,7 +55,7 @@ func RunServer() {
 	faqService := service.NewFaqSectionService(faqRepo)
 	ourTeamService := service.NewOurTeamService(ourTeamRepo)
 	serviceSectionService := service.NewServiceSectionService(serviceSectionRepo)
-	appointmentService := service.NewAppointmentService(appointmentRepo)
+	appointmentService := service.NewAppointmentService(appointmentRepo, emailMessage)
 	portofolioService := service.NewPortofolioSectionService(portofolioRepo)
 	portofolioDetailService := service.NewPortofolioDetailService(portofolioDetailRepo, portofolioRepo)
 	portofolioTestimonialService := service.NewPortofolioTestimonialService(portofolioTestimonialRepo, portofolioRepo)

@@ -14,11 +14,17 @@ type PortofolioDetailServiceInterface interface {
 	FetchByIDPortofolioDetail(ctx context.Context, id int64) (*entity.PortofolioDetailEntity, error)
 	EditByIDPortofolioDetail(ctx context.Context, req entity.PortofolioDetailEntity) error
 	DeleteByIDPortofolioDetail(ctx context.Context, id int64) error
+	FetchDetailPortofolioByPortoID(ctx context.Context, id int64) (*entity.PortofolioDetailEntity, error)
 }
 
 type portofolioDetailService struct {
 	portofolioDetail      repository.PortofolioDetailInterface
 	portofolioSectionRepo repository.PortofolioSectionInterface
+}
+
+// FetchdetailPortofolioByPortoID implements PortofolioDetailServiceInterface.
+func (p *portofolioDetailService) FetchDetailPortofolioByPortoID(ctx context.Context, portoID int64) (*entity.PortofolioDetailEntity, error) {
+	return p.portofolioDetail.FetchdetailPortofolioByPortoID(ctx, portoID)
 }
 
 // CreatePortofolioDetail implements PortofolioDetailServiceInterface.

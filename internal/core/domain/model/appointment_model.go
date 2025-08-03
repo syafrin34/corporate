@@ -13,7 +13,7 @@ type Appointment struct {
 	PhoneNumber string
 	Email       string
 	Brief       string
-	Budget      string
+	Budget      float64
 	MeetAt      time.Time
 	CreatedAt   time.Time
 	UpdatedAt   *time.Time

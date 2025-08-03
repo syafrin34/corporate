@@ -10,7 +10,7 @@ import (
 )
 
 type AppointmentInterface interface {
-	//CreateAppointment(ctx context.Context, req entity.AppointmentEntity) error
+	CreateAppointment(ctx context.Context, req entity.AppointmentEntity) (string, error)
 	FetchAllAppointment(ctx context.Context) ([]entity.AppointmentEntity, error)
 	FetchByIDAppointment(ctx context.Context, id int64) (*entity.AppointmentEntity, error)
 	//EditByIDAppointment(ctx context.Context, req entity.AppointmentEntity) error
@@ -19,6 +19,25 @@ type AppointmentInterface interface {
 
 type appointment struct {
 	DB *gorm.DB
+}
+
+// CreateAppointment implements AppointmentInterface.
+func (a *appointment) CreateAppointment(ctx context.Context, req entity.AppointmentEntity) (string, error) {
+	modelAppointment := model.Appointment{
+		ServiceID:   req.ServiceID,
+		Name:        req.Name,
+		PhoneNumber: req.PhoneNumber,
+		Email:       req.Email,
+		Brief:       req.Brief,
+		Budget:      req.Budget,
+		MeetAt:      req.MeetAt,
+	}
+	if err = a.DB.Create(&modelAppointment).Error; err != nil {
+		log.Errorf("[REPOSITORY] CreateAppointment - 1: %v", err)
+		return "", err
+	}
+
+	return modelAppointment.Email, nil
 }
 
 // DeleteByIDAppointment implements AppointmentInterface.

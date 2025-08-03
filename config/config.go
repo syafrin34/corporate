@@ -25,10 +25,20 @@ type PsqlDB struct {
 	DBMaxIdle int    `json:"db_max_idle"`
 }
 
+type EmailConfig struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Receiver string `json:"receiver"`
+	IsTLS    bool   `json:"is_tls"`
+}
+
 type Config struct {
 	App      App
 	Psql     PsqlDB
 	Supabase Supabase
+	Email    EmailConfig
 }
 type Supabase struct {
 	StorageUrl    string `json:"storage_url"`
@@ -61,6 +71,14 @@ func NewConfig() *Config {
 			StorageUrl:    viper.GetString("SUPABASE_STORAGE_URL"),
 			StorageKey:    viper.GetString("SUPABASE_STORAGE_KEY"),
 			StorageBucket: viper.GetString("SUPABASE_STORAGE_BUCKET"),
+		},
+		Email: EmailConfig{
+			Host:     viper.GetString("EMAIL_HOST"),
+			Port:     viper.GetInt("EMAIL_PORT"),
+			Username: viper.GetString("EMAIL_USERNAME"),
+			Password: viper.GetString("EMAIL_PASSWORD"),
+			Receiver: viper.GetString("EMAIL_RECEIVER"),
+			IsTLS:    viper.GetBool("EMAIL_TLS"),
 		},
 	}
 }
